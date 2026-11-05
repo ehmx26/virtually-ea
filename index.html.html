@@ -186,7 +186,7 @@
         </div>
     </section>
 
-    <!-- Contact Us Section -->
+    <!-- Contact Us Section (Fixed with AJAX submission) -->
     <section id="contact" class="py-24 bg-slate-100 border-t border-slate-200">
         <div class="max-w-3xl mx-auto px-6">
             <div class="text-center mb-12">
@@ -195,8 +195,10 @@
                 <p class="text-slate-600 mt-2">Have a question or need guidance on starting your VA career? Send a message directly to EA.</p>
             </div>
 
-            <form name="contact" method="POST" data-netlify="true" class="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-xl space-y-6">
-                <input type="hidden" name="form-name" value="contact">
+            <form id="contact-form" onsubmit="handleContactSubmit(event)" class="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-xl space-y-6">
+                <input type="hidden" name="access_key" value="b5278c77-4b72-4d45-9a4f-508b5327299a">
+                <input type="hidden" name="subject" value="New Message from Virtually EA Contact Form">
+                
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Your Name</label>
                     <input type="text" name="name" required placeholder="Jane Doe" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm">
@@ -209,9 +211,10 @@
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Message</label>
                     <textarea name="message" rows="4" required placeholder="How can we help you start your virtual assistant journey?" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 rounded-xl transition shadow-md text-sm cursor-pointer">
+                <button type="submit" id="contact-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 rounded-xl transition shadow-md text-sm cursor-pointer">
                     Send Message to EA
                 </button>
+                <p id="contact-success" class="text-xs text-emerald-600 text-center font-semibold hidden">✓ Message sent successfully! EA will get back to you soon.</p>
             </form>
         </div>
     </section>
@@ -274,7 +277,7 @@
         })()
     </script>
 
-    <!-- Firebase SDK & App Logic Script with Email Notification -->
+    <!-- Firebase SDK & App Logic Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
@@ -313,25 +316,45 @@
             document.getElementById('auth-toggle-btn').innerText = isSignUp ? "Already have an account? Log in" : "Don't have an account? Sign up";
         }
 
-        // Function to send an email notification when someone signs up
-        async function sendSignupNotification(userEmail) {
+        // Handle Contact Form Submission cleanly without 405 Errors
+        window.handleContactSubmit = async function(event) {
+            event.preventDefault();
+            const form = document.getElementById('contact-form');
+            const submitBtn = document.getElementById('contact-submit-btn');
+            const successMsg = document.getElementById('contact-success');
+            
+            submitBtn.innerText = "Sending...";
+            submitBtn.disabled = true;
+
+            const formData = new FormData(form);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+
             try {
-                await fetch("https://api.web3forms.com/submit", {
+                const response = await fetch("https://api.web3forms.com/submit", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Accept": "application/json"
                     },
-                    body: JSON.stringify({
-                        access_key: "b5278c77-4b72-4d45-9a4f-508b5327299a", // Free public key configured for instant alerts
-                        subject: "🎉 New User Signup on Virtually EA!",
-                        from_name: "Virtually EA Bot",
-                        email: userEmail,
-                        message: `A new user just created an account on Virtually EA!\n\nUser Email: ${userEmail}\nTime: ${new.toLocaleString()}`
-                    })
+                    body: json
                 });
-            } catch (err) {
-                console.error("Email notification error:", err);
+                const result = await response.json();
+                if (response.status === 200) {
+                    successMsg.classList.remove('hidden');
+                    form.reset();
+                    submitBtn.innerText = "Send Message to EA";
+                    submitBtn.disabled = false;
+                    setTimeout(() => successMsg.classList.add('hidden'), 5000);
+                } else {
+                    alert(result.message || "Something went wrong!");
+                    submitBtn.innerText = "Send Message to EA";
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                alert("An error occurred. Please try again.");
+                submitBtn.innerText = "Send Message to EA";
+                submitBtn.disabled = false;
             }
         }
 
@@ -346,9 +369,7 @@
 
             if(isSignUp) {
                 createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        // Send notification email to alunanemx@gmail.com
-                        sendSignupNotification(email);
+                    .then(() => {
                         alert("Account created successfully!");
                         closeAuthModal();
                     })
