@@ -186,7 +186,7 @@
         </div>
     </section>
 
-    <!-- Contact Us Section with mailto -->
+    <!-- Contact Us Section with Formspree Endpoint -->
     <section id="contact" class="py-24 bg-slate-100 border-t border-slate-200">
         <div class="max-w-3xl mx-auto px-6">
             <div class="text-center mb-12">
@@ -195,21 +195,21 @@
                 <p class="text-slate-600 mt-2">Have a question or need guidance on starting your VA career? Send a message directly to EA.</p>
             </div>
 
-            <form onsubmit="handleMailtoSubmit(event)" class="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-xl space-y-6">
+            <form action="https://formspree.io/f/mgaaqlgw" method="POST" class="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-xl space-y-6">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Your Name</label>
-                    <input type="text" id="contact-name" required placeholder="Jane Doe" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm">
+                    <input type="text" name="name" required placeholder="Jane Doe" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Your Email Address</label>
-                    <input type="email" id="contact-email" required placeholder="youremail@example.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm">
+                    <input type="email" name="email" required placeholder="youremail@example.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Message</label>
-                    <textarea id="contact-message" rows="4" required placeholder="How can we help you start your virtual assistant journey?" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"></textarea>
+                    <textarea name="message" rows="4" required placeholder="How can we help you start your virtual assistant journey?" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 rounded-xl transition shadow-md text-sm cursor-pointer">
-                    Send Message to EA (Opens Email)
+                    Send Message to EA
                 </button>
             </form>
         </div>
@@ -310,19 +310,6 @@
             document.getElementById('modal-title').innerText = isSignUp ? "Create an Account" : "Welcome Back";
             document.getElementById('auth-submit-btn').innerText = isSignUp ? "Sign Up" : "Log In";
             document.getElementById('auth-toggle-btn').innerText = isSignUp ? "Already have an account? Log in" : "Don't have an account? Sign up";
-        }
-
-        // Mailto handler for contact form
-        window.handleMailtoSubmit = function(event) {
-            event.preventDefault();
-            const name = document.getElementById('contact-name').value;
-            const email = document.getElementById('contact-email').value;
-            const message = document.getElementById('contact-message').value;
-
-            const subject = encodeURIComponent(`New Message from Virtually EA - ${name}`);
-            const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
-
-            window.location.href = `mailto:alunanemx@gmail.com?subject=${subject}&body=${body}`;
         }
 
         window.submitAuth = function() {
