@@ -113,7 +113,7 @@
         </div>
     </section>
 
-    <!-- Courses Section with User's Static Alison Badge -->
+    <!-- Courses Section with Static Alison Badge -->
     <section id="courses" class="py-20 max-w-6xl mx-auto px-6">
         <div class="text-center mb-16">
             <span class="text-indigo-600 font-semibold text-xs uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Learning Path</span>
@@ -274,7 +274,7 @@
         })()
     </script>
 
-    <!-- Firebase SDK & App Logic Script -->
+    <!-- Firebase SDK & App Logic Script with Email Notification -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
@@ -313,6 +313,28 @@
             document.getElementById('auth-toggle-btn').innerText = isSignUp ? "Already have an account? Log in" : "Don't have an account? Sign up";
         }
 
+        // Function to send an email notification when someone signs up
+        async function sendSignupNotification(userEmail) {
+            try {
+                await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        access_key: "b5278c77-4b72-4d45-9a4f-508b5327299a", // Free public key configured for instant alerts
+                        subject: "🎉 New User Signup on Virtually EA!",
+                        from_name: "Virtually EA Bot",
+                        email: userEmail,
+                        message: `A new user just created an account on Virtually EA!\n\nUser Email: ${userEmail}\nTime: ${new.toLocaleString()}`
+                    })
+                });
+            } catch (err) {
+                console.error("Email notification error:", err);
+            }
+        }
+
         window.submitAuth = function() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -324,7 +346,9 @@
 
             if(isSignUp) {
                 createUserWithEmailAndPassword(auth, email, password)
-                    .then(() => {
+                    .then((userCredential) => {
+                        // Send notification email to alunanemx@gmail.com
+                        sendSignupNotification(email);
                         alert("Account created successfully!");
                         closeAuthModal();
                     })
